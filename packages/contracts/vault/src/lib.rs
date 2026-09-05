@@ -207,7 +207,7 @@ impl MeridianVault {
                     .checked_add(OFFSET)
                     .ok_or(ContractError::Overflow)?,
             )
-            .ok_or(ContractError::Overflow)?;
+            .ok_or(ContractError::DivisionByZero)?;
 
         if shares_to_mint <= 0 {
             return Err(ContractError::DepositTooSmall);
@@ -336,7 +336,7 @@ impl MeridianVault {
             .checked_mul(total_adapter_shares)
             .ok_or(ContractError::Overflow)?
             .checked_div(total_shares)
-            .ok_or(ContractError::Overflow)?;
+            .ok_or(ContractError::DivisionByZero)?;
 
         // Adapter redeems protocol shares, delivers USDC to vault, returns amount.
         let adapter_client = AdapterClient::new(&env, &adapter_addr);
@@ -375,7 +375,7 @@ impl MeridianVault {
             .checked_mul(shares)
             .ok_or(ContractError::Overflow)?
             .checked_div(caller_shares)
-            .ok_or(ContractError::Overflow)?;
+            .ok_or(ContractError::DivisionByZero)?;
         env.storage()
             .persistent()
             .set(&principal_key, &(principal - principal_out));
@@ -446,7 +446,7 @@ impl MeridianVault {
             .checked_mul(amount)
             .ok_or(ContractError::Overflow)?
             .checked_div(sender_balance_before)
-            .ok_or(ContractError::Overflow)?;
+            .ok_or(ContractError::DivisionByZero)?;
 
         // Sender side: retire the moved principal. A full transfer-out
         // clears both records, mirroring withdraw()'s full-exit branch,
@@ -517,7 +517,7 @@ impl MeridianVault {
                     )
                     .ok_or(ContractError::Overflow)?
                     .checked_div(total_principal)
-                    .ok_or(ContractError::Overflow)?;
+                    .ok_or(ContractError::DivisionByZero)?;
                 weighted as u64
             } else {
                 // Both principals are zero (e.g. a dust position with no
@@ -900,7 +900,7 @@ impl MeridianVault {
             .checked_mul(10_000i128 - max_slippage_bps as i128)
             .ok_or(ContractError::Overflow)?
             .checked_div(10_000i128)
-            .ok_or(ContractError::Overflow)?;
+            .ok_or(ContractError::DivisionByZero)?;
         if value_after < min_acceptable {
             return Err(ContractError::MigrationValueDrift);
         }
@@ -920,7 +920,7 @@ impl MeridianVault {
             .checked_mul(10_000i128 - max_slippage_bps as i128)
             .ok_or(ContractError::Overflow)?
             .checked_div(10_000i128)
-            .ok_or(ContractError::Overflow)?;
+            .ok_or(ContractError::DivisionByZero)?;
         if new_adapter_value_before < min_acceptable_from_snapshot {
             return Err(ContractError::MigrationStabilityDrift);
         }
